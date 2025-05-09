@@ -1,1 +1,20 @@
-<p>main-layout works!</p>
+<div class="app-container">
+  <header class="app-header">
+    <div class="header-content">
+      <h1 class="app-title">نظام إدارة المخزون</h1>
+      <nav class="app-nav">
+        <a routerLink="/inventory/add" routerLinkActive="active">إضافة صنف</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-content">
+      <p>جميع الحقوق محفوظة &copy; {{currentYear}}</p>
+    </div>
+  </footer>
+</div>
