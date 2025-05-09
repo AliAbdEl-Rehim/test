@@ -6,6 +6,8 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CoreModule } from './core/core.module';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
+import { InventoryModule } from './features/inventory/inventory.module';
+
 
 @NgModule({
   declarations: [
@@ -16,7 +18,8 @@ import { MainLayoutComponent } from './layouts/main-layout/main-layout.component
     BrowserModule,
     BrowserAnimationsModule,
     CoreModule,
-    AppRoutingModule
+    AppRoutingModule,
+    InventoryModule
   ],
   providers: [],
   bootstrap: [AppComponent]
