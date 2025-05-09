@@ -1,0 +1,23 @@
+.form-field {
+    margin-bottom: 1rem;
+    
+    &.rtl {
+      direction: rtl;
+      text-align: right;
+    }
+    
+    .form-label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      
+      .required-marker {
+        color: red;
+        margin-right: 0.25rem;
+      }
+    }
+    
+    .form-input {
+      width: 100%;
+    }
+  }

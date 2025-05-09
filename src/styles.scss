@@ -1,0 +1,30 @@
+/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+html, body { 
+  height: 100%; 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif; 
+}
+
+/* RTL Support */
+body.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Form Fields */
+.mat-form-field {
+  width: 100%;
+}
+
+/* Buttons */
+button.mat-raised-button {
+  min-width: 120px;
+  margin-right: 8px;
+}
+
+body.rtl button.mat-raised-button {
+  margin-right: 0;
+  margin-left: 8px;
+}

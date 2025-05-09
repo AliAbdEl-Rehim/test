@@ -1,0 +1,119 @@
+<form [formGroup]="itemForm" (ngSubmit)="onSubmit()" class="rtl">
+    <div class="form-row">
+      <app-form-field label="المخزن" [required]="true">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-select formControlName="store">
+            <mat-option *ngFor="let store of stores" [value]="store">
+              {{ store }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="itemForm.get('store')?.hasError('required')">
+            المخزن مطلوب
+          </mat-error>
+        </mat-form-field>
+      </app-form-field>
+  
+      <app-form-field label="المخزن الفرعي">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-select formControlName="subStore">
+            <mat-option *ngFor="let subStore of subStores" [value]="subStore">
+              {{ subStore }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </app-form-field>
+    </div>
+  
+    <div class="form-row">
+      <app-form-field label="المحطة">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-select formControlName="station">
+            <mat-option *ngFor="let station of stations" [value]="station">
+              {{ station }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </app-form-field>
+  
+      <app-form-field label="وحدة القياس">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-select formControlName="unit">
+            <mat-option *ngFor="let unit of units" [value]="unit">
+              {{ unit }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </app-form-field>
+    </div>
+  
+    <div class="form-row">
+      <app-form-field label="اسم الصنف" [required]="true">
+        <mat-form-field appearance="outline" class="full-width">
+          <input matInput formControlName="itemName">
+          <mat-error *ngIf="itemForm.get('itemName')?.hasError('required')">
+            اسم الصنف مطلوب
+          </mat-error>
+        </mat-form-field>
+      </app-form-field>
+  
+      <app-form-field label="رقم الصنف" [required]="true">
+        <mat-form-field appearance="outline" class="full-width">
+          <input matInput formControlName="itemNumber">
+          <mat-error *ngIf="itemForm.get('itemNumber')?.hasError('required')">
+            رقم الصنف مطلوب
+          </mat-error>
+        </mat-form-field>
+      </app-form-field>
+    </div>
+  
+    <div class="form-row">
+      <app-form-field label="نوع الصنف">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-select formControlName="itemType">
+            <mat-option *ngFor="let type of itemTypes" [value]="type">
+              {{ type }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </app-form-field>
+  
+      <app-form-field label="حد الطلب">
+        <mat-form-field appearance="outline" class="full-width">
+          <input matInput type="number" formControlName="orderLimit">
+        </mat-form-field>
+      </app-form-field>
+    </div>
+  
+    <div class="form-row">
+      <app-form-field label="تاريخ الانتهاء">
+        <mat-form-field appearance="outline" class="full-width">
+          <input matInput [matDatepicker]="expiryPicker" formControlName="expiryDate">
+          <mat-datepicker-toggle matSuffix [for]="expiryPicker"></mat-datepicker-toggle>
+          <mat-datepicker #expiryPicker></mat-datepicker>
+        </mat-form-field>
+      </app-form-field>
+  
+      <app-form-field label="تاريخ الإنشاء">
+        <mat-form-field appearance="outline" class="full-width">
+          <input matInput [matDatepicker]="creationPicker" formControlName="creationDate" readonly>
+          <mat-datepicker-toggle matSuffix [for]="creationPicker"></mat-datepicker-toggle>
+          <mat-datepicker #creationPicker></mat-datepicker>
+        </mat-form-field>
+      </app-form-field>
+    </div>
+  
+    <div class="form-actions">
+      <button mat-raised-button color="primary" type="submit">
+        <mat-icon>save</mat-icon>
+        حفظ
+      </button>
+      <button mat-raised-button type="button" (click)="onReset()">
+        <mat-icon>refresh</mat-icon>
+        إعادة تعيين
+      </button>
+      <button mat-raised-button color="warn" type="button" (click)="onDelete()">
+        <mat-icon>delete</mat-icon>
+        حذف
+      </button>
+    </div>
+  </form>
