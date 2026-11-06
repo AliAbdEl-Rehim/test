@@ -2191,24 +2191,10 @@ timeLowStoch = distLowStoch <= confirmBars
 calcBearishScore() =>
     f1 = (statePriceTop == 1 and stateRSITop <= 0) ? (stateRSITop == -1 ? 0.85 : 0.65) : 0.25
     f2 = (statePriceTop == 1 and stateOBVTop <= 0) ? (stateOBVTop == -1 ? 0.80 : 0.60) : 0.25
-    f3 = 0.25
-    if useStoch and timeTopStoch
-        if stochK > stochOverbought and stateStochTop <= 0
-            f3 := 0.75
-        else if stochK > stochOverbought
-            f3 := 0.55
-    f4 = 0.40
-    if useFinVol and timeTopVol
-        if stateVolTop <= 0 and volumeStrong
-            f4 := 0.70
-        else if stateVolTop <= 0
-            f4 := 0.55
+    f3 = (useStoch and timeTopStoch and stochK > stochOverbought and stateStochTop <= 0) ? 0.75 : (useStoch and timeTopStoch and stochK > stochOverbought) ? 0.55 : 0.25
+    f4 = (useFinVol and timeTopVol and stateVolTop <= 0 and volumeStrong) ? 0.70 : (useFinVol and timeTopVol and stateVolTop <= 0) ? 0.55 : 0.40
     f5 = isUptrend ? 0.35 : isDowntrend ? 0.75 : 0.50
-    f6 = 0.50
-    if timeTopRSI and timeTopOBV
-        f6 := 0.85
-    else if timeTopRSI or timeTopOBV
-        f6 := 0.65
+    f6 = (timeTopRSI and timeTopOBV) ? 0.85 : (timeTopRSI or timeTopOBV) ? 0.65 : 0.50
     f7 = useVolatilityFilter ? (isVolatile ? 0.70 : isCalm ? 0.30 : 0.50) : 0.50
     confCount = (timeTopRSI ? 1 : 0) + (timeTopOBV ? 1 : 0) + (timeTopVol and useFinVol ? 1 : 0) + (timeTopStoch and useStoch ? 1 : 0)
     f8 = confCount == 0 ? 0.20 : confCount == 1 ? 0.40 : confCount == 2 ? 0.60 : confCount >= 3 ? 0.80 : 0.50
@@ -2219,24 +2205,10 @@ calcBearishScore() =>
 calcBullishScore() =>
     f1 = (statePriceLow == -1 and stateRSILow >= 0) ? (stateRSILow == 1 ? 0.85 : 0.65) : 0.25
     f2 = (statePriceLow == -1 and stateOBVLow >= 0) ? (stateOBVLow == 1 ? 0.80 : 0.60) : 0.25
-    f3 = 0.25
-    if useStoch and timeLowStoch
-        if stochK < stochOversold and stateStochLow >= 0
-            f3 := 0.75
-        else if stochK < stochOversold
-            f3 := 0.55
-    f4 = 0.40
-    if useFinVol and timeLowVol
-        if stateVolLow >= 0 and volumeStrong
-            f4 := 0.70
-        else if stateVolLow >= 0
-            f4 := 0.55
+    f3 = (useStoch and timeLowStoch and stochK < stochOversold and stateStochLow >= 0) ? 0.75 : (useStoch and timeLowStoch and stochK < stochOversold) ? 0.55 : 0.25
+    f4 = (useFinVol and timeLowVol and stateVolLow >= 0 and volumeStrong) ? 0.70 : (useFinVol and timeLowVol and stateVolLow >= 0) ? 0.55 : 0.40
     f5 = isDowntrend ? 0.35 : isUptrend ? 0.75 : 0.50
-    f6 = 0.50
-    if timeLowRSI and timeLowOBV
-        f6 := 0.85
-    else if timeLowRSI or timeLowOBV
-        f6 := 0.65
+    f6 = (timeLowRSI and timeLowOBV) ? 0.85 : (timeLowRSI or timeLowOBV) ? 0.65 : 0.50
     f7 = useVolatilityFilter ? (isVolatile ? 0.70 : isCalm ? 0.30 : 0.50) : 0.50
     confCount = (timeLowRSI ? 1 : 0) + (timeLowOBV ? 1 : 0) + (timeLowVol and useFinVol ? 1 : 0) + (timeLowStoch and useStoch ? 1 : 0)
     f8 = confCount == 0 ? 0.20 : confCount == 1 ? 0.40 : confCount == 2 ? 0.60 : confCount >= 3 ? 0.80 : 0.50
@@ -2246,18 +2218,11 @@ calcBullishScore() =>
 
 getTier(score, isBearish) =>
     highScore = score >= highProbCutoff
-    medScore  = score >= medProbCutoff
+    medScore = score >= medProbCutoff
     hasMultipleConf = (timeTopRSI and timeTopOBV) or (timeLowRSI and timeLowOBV)
     hasStochConf = useStoch ? (isBearish ? timeTopStoch : timeLowStoch) : false
-    hasVolConf   = useFinVol ? (isBearish ? timeTopVol : timeLowVol) : false
-    if highScore and hasMultipleConf and (hasStochConf or hasVolConf)
-        "A+"
-    else if highScore and (hasMultipleConf or hasStochConf or hasVolConf)
-        "A"
-    else if medScore
-        "B"
-    else
-        "C"
+    hasVolConf = useFinVol ? (isBearish ? timeTopVol : timeLowVol) : false
+    (highScore and hasMultipleConf and (hasStochConf or hasVolConf)) ? "A+" : (highScore and (hasMultipleConf or hasStochConf or hasVolConf)) ? "A" : medScore ? "B" : "C"
 
 //====================================================================================
 // 📋 SECTION 6: VALIDAÇÃO DAS DIVERGÊNCIAS COM SCORE
