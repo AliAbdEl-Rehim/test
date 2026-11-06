@@ -219,9 +219,7 @@ inNYAM   = not na(time(timeframe.period, i_kzNYAM,   i_tzOffset))
 inNYPM   = not na(time(timeframe.period, i_kzNYPM,   i_tzOffset))
 inKZ     = inLondon or inNYAM or inNYPM
 
-bgcolor(i_kzShowBG and inLondon ? color.new(#448aff, 94) : na)
-bgcolor(i_kzShowBG and inNYAM   ? color.new(#00e676, 94) : na)
-bgcolor(i_kzShowBG and inNYPM   ? color.new(#ffd700, 94) : na)
+bgcolor(not i_kzShowBG ? na : inLondon ? color.new(#448aff, 94) : inNYAM ? color.new(#00e676, 94) : inNYPM ? color.new(#ffd700, 94) : na)
 
 // Time-of-day filter
 nyHour   = hour(time, i_tzOffset)
@@ -1744,8 +1742,7 @@ alertcondition(signal_type_adv == "بيع 🔴" and final_confidence >= 75, "�
 alertcondition(pivot_prediction == "BUY 🔵" and pivot_confidence >= 75, "شراء من دعم بيفوت", "Buy Signal")
 alertcondition(pivot_prediction == "SELL 🔴" and pivot_confidence >= 75, "بيع من مقاومة بيفوت", "Sell Signal")
 
-//==================== PLOTS (hidden) ====================
-plot(final_confidence, "Confidence Score", display=display.none)
+// Confidence stays in the analysis table. A hidden plot would count toward the 64-plot limit.
 
 //====================================================================================
 // 📋 SECTION 3: STOCHASTIC MTF (FIXED - BGCOLOR ERRORS RESOLVED)
@@ -1794,12 +1791,8 @@ crossDn = (outK[1] > outD[1] and outK[1] > upLine[1]) and (outK < outD)
 crossUpAll = (outK[1] < outD[1] and outK > outD)
 crossDownAll = (outK[1] > outD[1] and outK < outD)
 
-bgcolor(show_stochastic_bg and sbh and aboveLine ? color.new(color.red, 70) : na)
-bgcolor(show_stochastic_bg and sbh and belowLine ? color.new(color.lime, 70) : na)
-bgcolor(show_stochastic_bg and sch and crossUp ? color.new(color.lime, 40) : na)
-bgcolor(show_stochastic_bg and sch and crossDn ? color.new(color.red, 40) : na)
-bgcolor(show_stochastic_bg and sac and crossUpAll ? color.new(color.lime, 40) : na)
-bgcolor(show_stochastic_bg and sac and crossDownAll ? color.new(color.red, 40) : na)
+stochBgColor = not show_stochastic_bg ? na : sac and crossDownAll ? color.new(color.red, 40) : sac and crossUpAll ? color.new(color.lime, 40) : sch and crossDn ? color.new(color.red, 40) : sch and crossUp ? color.new(color.lime, 40) : sbh and belowLine ? color.new(color.lime, 70) : sbh and aboveLine ? color.new(color.red, 70) : na
+bgcolor(stochBgColor)
 
 plot(show_stochastic_lines ? outK : na, title="Stoch K", style=plot.style_line, linewidth=3, color=color.new(color.lime, 0))
 plot(show_stochastic_lines ? outD : na, title="Stoch D", style=plot.style_line, linewidth=3, color=color.new(color.red, 0))
@@ -2329,12 +2322,5 @@ if showTable and barstate.islast
 alertcondition(showBearish and bearishTier == "A+", "🔻 VENDA A+", "Venda de alta qualidade detectada")
 alertcondition(showBullish and bullishTier == "A+", "🟢 COMPRA A+", "Compra de alta qualidade detectada")
 
-//====================================================================================
-// 📋 SECTION 10: PLOTS OBRIGATÓRIOS
-//====================================================================================
-
-plot(showLabels ? rsi : na, "RSI", color.new(#2962FF, 0), linewidth=1, display=display.none)
-plot(showLabels ? div_obv_smooth : na, "Div OBV Smooth", color.new(#FF9800, 0), linewidth=1, display=display.none)
-plot(useStoch and showLabels ? stochK : na, "Div Stoch K", color.new(#00E676, 0), linewidth=1, display=display.none)
-plot(showLabels ? bearishScore : na, "Bearish Score", display=display.none)
-plot(showLabels ? bullishScore : na, "Bullish Score", display=display.none)
+// RSI, OBV, Stoch and scores stay on the divergence labels and table.
+// Hidden plots were removed so the merged script stays under TradingView's 64-plot limit.
