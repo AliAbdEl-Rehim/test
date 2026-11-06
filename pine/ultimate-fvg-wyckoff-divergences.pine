@@ -761,24 +761,13 @@ if bar_index - obv_pattern_bar > 10
     last_obv_bullish := false
     last_obv_bearish := false
 
-plot(i_showOBV ? obv_smooth : na, "OBV Smoothed", color=color.new(#2962FF, 0), linewidth=3)
-plotshape(i_showOBVPattern and obv_bullish_reversal, "🟢 OBV Bullish Reversal", 
-         location=location.bottom, 
-         style=shape.labelup, 
-         color=color.new(#00ff88, 0), 
-         size=size.small,
-         text="OBV↑",
-         textcolor=color.white)
-plotshape(i_showOBVPattern and obv_bearish_reversal, "🔴 OBV Bearish Reversal", 
-         location=location.top, 
-         style=shape.labeldown, 
-         color=color.new(#ff4444, 0), 
-         size=size.small,
-         text="OBV↓",
-         textcolor=color.white)
-
-alertcondition(obv_bullish_reversal, "OBV Bullish Reversal", "OBV Bullish Reversal Pattern Detected")
-alertcondition(obv_bearish_reversal, "OBV Bearish Reversal", "OBV Bearish Reversal Pattern Detected")
+plot(i_showOBV ? obv_smooth : na, "OBV Smoothed", color=color.blue, linewidth=3)
+if i_showOBVPattern and obv_bullish_reversal
+    label.new(bar_index, low, "OBV↑", style=label.style_label_up, color=color.green, textcolor=color.white, size=size.small)
+    alert("OBV Bullish Reversal Pattern Detected", alert.freq_once_per_bar)
+if i_showOBVPattern and obv_bearish_reversal
+    label.new(bar_index, high, "OBV↓", style=label.style_label_down, color=color.red, textcolor=color.white, size=size.small)
+    alert("OBV Bearish Reversal Pattern Detected", alert.freq_once_per_bar)
 
 //====================================================================================
 // 📋 CVD LEADER CALCULATION (FIXED: sessionChange variable, defval corrected)
@@ -1116,16 +1105,22 @@ if i_showTable and show_analysis_tables and barstate.islast
     table.cell(dash, 1, 16, "", bgcolor=hdrBg)
     table.cell(dash, 2, 16, "", bgcolor=hdrBg)
 
-plot(i_ShowEMA ? emaFast : na, color=color.new(#20f408, 0), linewidth=3, title="Fast EMA")
-plot(i_ShowEMA ? emaSlow : na, color=color.new(#ed1405, 0), linewidth=3, title="Slow EMA")
-plot(i_ShowEMA ? emaHTF  : na, color=color.new(#ffd900, 0), linewidth=3, title="HTF EMA")
+plot(i_ShowEMA ? emaFast : na, color=color.lime, linewidth=3, title="Fast EMA")
+plot(i_ShowEMA ? emaSlow : na, color=color.red, linewidth=3, title="Slow EMA")
+plot(i_ShowEMA ? emaHTF  : na, color=color.yellow, linewidth=3, title="HTF EMA")
 
-alertcondition(fireTrendLong,  "LONG Trend Setup",  "LONG trend setup")
-alertcondition(fireTrendShort, "SHORT Trend Setup", "SHORT trend setup")
-alertcondition(fireRevLong,    "LONG Reversal",     "LONG reversal setup")
-alertcondition(fireRevShort,   "SHORT Reversal",    "SHORT reversal setup")
-alertcondition(sweepBull,      "Bullish Sweep",     "Liquidity sweep of lows")
-alertcondition(sweepBear,      "Bearish Sweep",     "Liquidity sweep of highs")
+if fireTrendLong
+    alert("LONG trend setup", alert.freq_once_per_bar)
+if fireTrendShort
+    alert("SHORT trend setup", alert.freq_once_per_bar)
+if fireRevLong
+    alert("LONG reversal setup", alert.freq_once_per_bar)
+if fireRevShort
+    alert("SHORT reversal setup", alert.freq_once_per_bar)
+if sweepBull
+    alert("Liquidity sweep of lows", alert.freq_once_per_bar)
+if sweepBear
+    alert("Liquidity sweep of highs", alert.freq_once_per_bar)
 
 //====================================================================================
 // 📋 SECTION 2: WYCKOFF + ADVANCED TRADING + PIVOT PREDICTOR
@@ -1205,7 +1200,8 @@ var bool isDARFlag = false
 var bool isDSTFlag = false
 
 isSC = isPivotLow and rsiAtPivot < rsiLow and not isSCFlag and not spring
-plotshape(isSC, "The Selling Climax", location=location.belowbar, style=shape.triangleup, color=color.green, size=size.tiny, offset=offsetVal, text="SC", textcolor=color_)
+if isSC
+    label.new(bar_index + offsetVal, low[pivotLen], "SC", yloc=yloc.belowbar, style=label.style_label_up, color=color.green, textcolor=color.white, size=size.tiny)
 isSCFlag := isSC ? true : isSCFlag
 
 var int scBarIndex = na
@@ -1217,19 +1213,22 @@ if not na(scBarIndex)
         isAR := true
         scBarIndex := na
 isARFlag := isAR ? true : isARFlag
-plotshape(isAR, "Automatic Rally", style=shape.triangledown, location=location.abovebar, color=color.green, size=size.tiny, offset=offsetVal, text="AR", textcolor=color_)
+if isAR
+    label.new(bar_index + offsetVal, high[pivotLen], "AR", yloc=yloc.abovebar, style=label.style_label_down, color=color.green, textcolor=color.white, size=size.tiny)
 
 var int pivotCounter = 0
 if isPivotLow
     pivotCounter := pivotCounter + 1
 if rsiAtPivot < rsiLow
     pivotCounter := 0
-isST = pivotCounter == 1 and isPivotLow and not isSTFlag 
-plotshape(isST,"The Secondary Test", location=location.belowbar, style=shape.triangleup, color=color.green, size=size.tiny, offset=offsetVal, text="ST", textcolor=color_)
+isST = pivotCounter == 1 and isPivotLow and not isSTFlag
+if isST
+    label.new(bar_index + offsetVal, low[pivotLen], "ST", yloc=yloc.belowbar, style=label.style_label_up, color=color.green, textcolor=color.white, size=size.tiny)
 isSTFlag := isST ? true : isSTFlag
 
 isBC = rsiAtPivot > rsiHigh and isPivotHigh and not isBCFlag and not utad
-plotshape(isBC,"The Buying Climax", location=location.abovebar, style=shape.triangledown, color=color.red, size=size.tiny, offset=offsetVal, text="BC", textcolor=color_)
+if isBC
+    label.new(bar_index + offsetVal, high[pivotLen], "BC", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
 isBCFlag := isBC ? true : isBCFlag
 
 var int bcBarIndex = na
@@ -1241,7 +1240,8 @@ if not na(bcBarIndex)
         isDAR := true
         bcBarIndex := na
 isDARFlag := isDAR ? true : isDARFlag
-plotshape(isDAR,"Automatic Reaction", location=location.belowbar, style=shape.triangleup, color=color.red, size=size.tiny, offset=offsetVal, text="AR", textcolor=color_)
+if isDAR
+    label.new(bar_index + offsetVal, low[pivotLen], "AR", yloc=yloc.belowbar, style=label.style_label_up, color=color.red, textcolor=color.white, size=size.tiny)
 
 var int darBarIndex = na
 if isDAR
@@ -1252,10 +1252,13 @@ if not na(darBarIndex)
         isDST := true
         darBarIndex := na
 isDSTFlag := isDST ? true : isDSTFlag
-plotshape(isDST,"Secondary Test Distribution", location=location.abovebar, style=shape.triangledown, color=color.red, size=size.tiny, offset=offsetVal, text="ST", textcolor=color_)
+if isDST
+    label.new(bar_index + offsetVal, high[pivotLen], "ST", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
 
-plotshape(isPivotLow and not isSC and not isST and not isAR and not isDAR, "pivotLow", location=location.belowbar, style=shape.triangleup, color=color.orange, size=size.auto, offset=offsetVal)
-plotshape(isPivotHigh and not isAR and not isDST and not isBC, "pivotHigh", location=location.abovebar, style=shape.triangledown, color=color.orange, size=size.auto, offset=offsetVal)
+if isPivotLow and not isSC and not isST and not isAR and not isDAR
+    label.new(bar_index + offsetVal, low[pivotLen], "", yloc=yloc.belowbar, style=label.style_triangleup, color=color.orange, size=size.tiny)
+if isPivotHigh and not isAR and not isDST and not isBC
+    label.new(bar_index + offsetVal, high[pivotLen], "", yloc=yloc.abovebar, style=label.style_triangledown, color=color.orange, size=size.tiny)
 
 if bar_index != bar_index[1]
     isSCFlag := false
@@ -1603,10 +1606,14 @@ if (C1_signal or C2_signal or C3_signal or C4_signal or WOLFE_bullish or WOLFE_b
     array.push(pattern_history, pat)
 
 //==================== DISPLAY - WYCKOFF & ADVANCED SIGNALS ====================
-plotshape(show_c_signals and (C1_signal or C2_signal), "C1-C2 Buy", location=location.belowbar, style=shape.labelup, color=colorBuySignal, size=size.tiny, text="BUY", textcolor=color.white)
-plotshape(show_c_signals and (C3_signal or C4_signal), "C3-C4 Sell", location=location.abovebar, style=shape.labeldown, color=colorSellSignal, size=size.tiny, text="SELL", textcolor=color.white)
-plotshape(show_wolfe_signals and WOLFE_bullish, "Wolfe Bullish", location=location.belowbar, style=shape.triangleup, color=colorWolfeBull, size=size.small, text="W↑")
-plotshape(show_wolfe_signals and WOLFE_bearish, "Wolfe Bearish", location=location.abovebar, style=shape.triangledown, color=colorWolfeBear, size=size.small, text="W↓")
+if show_c_signals and (C1_signal or C2_signal)
+    label.new(bar_index, low, "BUY", yloc=yloc.belowbar, style=label.style_label_up, color=colorBuySignal, textcolor=color.white, size=size.tiny)
+if show_c_signals and (C3_signal or C4_signal)
+    label.new(bar_index, high, "SELL", yloc=yloc.abovebar, style=label.style_label_down, color=colorSellSignal, textcolor=color.white, size=size.tiny)
+if show_wolfe_signals and WOLFE_bullish
+    label.new(bar_index, low, "W↑", yloc=yloc.belowbar, style=label.style_label_up, color=colorWolfeBull, textcolor=color.white, size=size.small)
+if show_wolfe_signals and WOLFE_bearish
+    label.new(bar_index, high, "W↓", yloc=yloc.abovebar, style=label.style_label_down, color=colorWolfeBear, textcolor=color.white, size=size.small)
 
 if detect_accumulation and accumulation_detected and show_accumulation_zones
     box.new(bar_index - accumulation_bars, high, bar_index, low, bgcolor=accumulation_color)
@@ -1737,10 +1744,10 @@ if signal_type_adv == "شراء 🟢" and final_confidence >= 75 and barstate.is
 if signal_type_adv == "بيع 🔴" and final_confidence >= 75 and barstate.isconfirmed
     alert("🔴 إشارة بيع قوية!\nالثقة: " + str.tostring(final_confidence, "#.#") + "%", alert.freq_once_per_bar)
 
-alertcondition(signal_type_adv == "شراء 🟢" and final_confidence >= 75, "🟢 شراء قوي", "شراء")
-alertcondition(signal_type_adv == "بيع 🔴" and final_confidence >= 75, "🔴 بيع قوي", "بيع")
-alertcondition(pivot_prediction == "BUY 🔵" and pivot_confidence >= 75, "شراء من دعم بيفوت", "Buy Signal")
-alertcondition(pivot_prediction == "SELL 🔴" and pivot_confidence >= 75, "بيع من مقاومة بيفوت", "Sell Signal")
+if pivot_prediction == "BUY 🔵" and pivot_confidence >= 75 and barstate.isconfirmed
+    alert("Buy Signal", alert.freq_once_per_bar)
+if pivot_prediction == "SELL 🔴" and pivot_confidence >= 75 and barstate.isconfirmed
+    alert("Sell Signal", alert.freq_once_per_bar)
 
 // Confidence stays in the analysis table. A hidden plot would count toward the 64-plot limit.
 
@@ -1794,21 +1801,22 @@ crossDownAll = (outK[1] > outD[1] and outK < outD)
 stochBgColor = not show_stochastic_bg ? na : sac and crossDownAll ? color.new(color.red, 40) : sac and crossUpAll ? color.new(color.lime, 40) : sch and crossDn ? color.new(color.red, 40) : sch and crossUp ? color.new(color.lime, 40) : sbh and belowLine ? color.new(color.lime, 70) : sbh and aboveLine ? color.new(color.red, 70) : na
 bgcolor(stochBgColor)
 
-plot(show_stochastic_lines ? outK : na, title="Stoch K", style=plot.style_line, linewidth=3, color=color.new(color.lime, 0))
-plot(show_stochastic_lines ? outD : na, title="Stoch D", style=plot.style_line, linewidth=3, color=color.new(color.red, 0))
+plot(show_stochastic_lines ? outK : na, title="Stoch K", style=plot.style_line, linewidth=3, color=color.lime)
+plot(show_stochastic_lines ? outD : na, title="Stoch D", style=plot.style_line, linewidth=3, color=color.red)
+plot(ssStoch and show_stochastic_lines ? outK2 : na, title="2nd Stoch K - Different TimeFrame", style=plot.style_line, linewidth=3, color=color.orange)
+plot(ssStoch and show_stochastic_lines ? outD2 : na, title="2nd Stoch D - Different TimeFrame", style=plot.style_line, linewidth=3, color=color.yellow)
+plot(show_stochastic_lines ? upLine : na, title="Upper Line", style=plot.style_line, linewidth=3, color=color.red)
+plot(show_stochastic_lines ? lowLine : na, title="Lower Line", style=plot.style_line, linewidth=3, color=color.lime)
+plot(sml and show_stochastic_lines ? 50 : na, title="Mid Line", style=plot.style_linebr, linewidth=3, color=color.gray)
 
-plot(ssStoch and show_stochastic_lines ? outK2 : na, title="2nd Stoch K - Different TimeFrame", style=plot.style_line, linewidth=3, color=color.new(color.orange, 0))
-plot(ssStoch and show_stochastic_lines ? outD2 : na, title="2nd Stoch D - Different TimeFrame", style=plot.style_line, linewidth=3, color=color.new(color.yellow, 0))
-
-p1 = plot(show_stochastic_lines ? upLine : na, title= "Upper Line", style=plot.style_line, linewidth=3, color=color.new(color.red, 0))
-p2 = plot(show_stochastic_lines ? lowLine : na, title= "Lower Line", style=plot.style_line, linewidth=3, color=color.new(color.lime, 0))
-plot(sml and show_stochastic_lines ? 50 : na, title="Mid Line", style=plot.style_linebr, linewidth=3, color=color.new(color.gray, 0))
-
-plotchar(show_stochastic_crosses and sl and crossUp, title="Buy Signal Strict Criteria", char='B', location=location.bottom, color=color.new(color.lime, 0), offset=0)
-plotchar(show_stochastic_crosses and sl and crossDn, title="Sell Signal Strict Criteria", char='S', location=location.top, color=color.new(color.red, 0), offset=0)
-plotchar(show_stochastic_crosses and sacl and crossUpAll, title="Buy Signal Any Cross Up", char='B', location=location.bottom, color=color.new(color.lime, 0), offset=0)
-plotchar(show_stochastic_crosses and sacl and crossDownAll, title="Sell Signal Any Cross Down", char='S', location=location.top, color=color.new(color.red, 0), offset=0)
-fill(p1, p2, color=color.new(color.silver, 70))
+if show_stochastic_crosses and sl and crossUp
+    label.new(bar_index, low, "B", yloc=yloc.belowbar, style=label.style_label_up, color=color.lime, textcolor=color.black, size=size.tiny)
+if show_stochastic_crosses and sl and crossDn
+    label.new(bar_index, high, "S", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+if show_stochastic_crosses and sacl and crossUpAll
+    label.new(bar_index, low, "B", yloc=yloc.belowbar, style=label.style_label_up, color=color.lime, textcolor=color.black, size=size.tiny)
+if show_stochastic_crosses and sacl and crossDownAll
+    label.new(bar_index, high, "S", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
 
 //====================================================================================
 // 📋 DIVERGÊNCIAS AVANÇADAS (MERGED)
@@ -2255,8 +2263,8 @@ if showLines
     if not na(priceLow1) and not na(priceLow2)
         segBottom := f_seg(priceLow1, priceLBar1, priceLow2, priceLBar2)
 
-plot(showLines and modeTop ? segTop : na, "Reta Topos", color.new(#ff1744, 60), linewidth=1, style=plot.style_line)
-plot(showLines and modeBottom ? segBottom : na, "Reta Fundos", color.new(#00e676, 60), linewidth=1, style=plot.style_line)
+plot(showLines and modeTop ? segTop : na, "Reta Topos", color.red, linewidth=1, style=plot.style_line)
+plot(showLines and modeBottom ? segBottom : na, "Reta Fundos", color.lime, linewidth=1, style=plot.style_line)
 
 //====================================================================================
 // 📋 SECTION 8: PAINEL DE ESTADOS
@@ -2319,8 +2327,10 @@ if showTable and barstate.islast
 // 📋 SECTION 9: ALERTAS
 //====================================================================================
 
-alertcondition(showBearish and bearishTier == "A+", "🔻 VENDA A+", "Venda de alta qualidade detectada")
-alertcondition(showBullish and bullishTier == "A+", "🟢 COMPRA A+", "Compra de alta qualidade detectada")
+if showBearish and bearishTier == "A+"
+    alert("Venda de alta qualidade detectada", alert.freq_once_per_bar)
+if showBullish and bullishTier == "A+"
+    alert("Compra de alta qualidade detectada", alert.freq_once_per_bar)
 
 // RSI, OBV, Stoch and scores stay on the divergence labels and table.
 // Hidden plots were removed so the merged script stays under TradingView's 64-plot limit.
